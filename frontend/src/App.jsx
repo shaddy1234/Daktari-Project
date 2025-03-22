@@ -1,4 +1,5 @@
 import React from 'react';
+import { BrowserRouter } from "react-router-dom";
 import { Routes, Route } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
@@ -15,7 +16,8 @@ function App() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-grow">
+      <main>
+      <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/symptom-checker" element={<SymptomChecker />} />
@@ -26,7 +28,22 @@ function App() {
           <Route path="/signin" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
         </Routes>
+      </BrowserRouter>
       </main>
+      
+      <Footer />
+      {/* <main className="flex-grow">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/symptom-checker" element={<SymptomChecker />} />
+          <Route path="/nutrition-planner" element={<NutritionPlanner />} />
+          <Route path="/mental-health" element={<MentalHealth />} />
+          <Route path="/chatbot" element={<Chatbot />} />
+          <Route path="/medication-guide" element={<MedicationGuide />} />
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/signup" element={<SignUp />} />
+        </Routes>
+      </main> */}
       <Footer />
     </div>
   );
