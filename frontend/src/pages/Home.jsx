@@ -2,9 +2,9 @@ import { Link } from 'react-router-dom';
 
 function FeatureCard({ title, description, icon, link }) {
   return (
-    <Link to={link} className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 hover:bg-blue-700">
-      <div className="text-4xl mb-4">{icon}</div>
-      <h3 className="text-xl font-semibold mb-2 text-gray-800 hover:text-white">{title}</h3>
+    <Link to={link} className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300">
+      <div className="text-4xl mb-4 flex justify-center">{icon}</div>
+      <h3 className="text-xl font-semibold mb-2 text-gray-800 flex justify-center">{title}</h3>
       <p className="text-gray-600">{description}</p>
     </Link>
   );
@@ -24,11 +24,11 @@ function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-24">
+      <section className="bg-gradient-to-r from-primary-600 to-primary-800 text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <h1 className="text-5xl font-bold mb-6 leading-tight">Welcome to KimSAI</h1>
+              <h1 className="text-5xl font-bold mb-6 leading-tight">Welcome to DoktaAI</h1>
               <p className="text-xl mb-8 text-primary-50">Your AI-powered healthcare companion for personalized medical assistance and wellness guidance.</p>
               <div className="space-x-4">
                 <Link to="/signup" className="inline-block bg-white text-primary-600 px-8 py-4 rounded-lg font-semibold hover:bg-primary-50 transition-colors duration-300">
@@ -51,7 +51,7 @@ function Home() {
       </section>
 
       {/* Features Section */}
-      <section className="py-24 bg-gray-50">
+      <section className="py-24 bg-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold text-center mb-16 text-gray-800">Our Features</h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -96,7 +96,7 @@ function Home() {
           <div className="grid md:grid-cols-3 gap-8">
             <ReviewCard
               name="Sarah Johnson"
-              review="KimSAI has been a game-changer for managing my health. The symptom checker is incredibly accurate!"
+              review="DoktaAI has been a game-changer for managing my health. The symptom checker is incredibly accurate!"
               role="Healthcare Professional"
             />
             <ReviewCard
