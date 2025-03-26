@@ -43,7 +43,7 @@ function Navbar() {
                 className="p-2 rounded-full hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 onClick={() => setShowProfileMenu(!showProfileMenu)}
               >
-                <UserCircleIcon className="h-8 w-8 text-gray-600" />
+                <UserCircleIcon className="h-12 w-12 text-gray-600" />
               </button>
               {showProfileMenu && (
                 <div className="absolute right-0 mt-2 w-48 rounded-lg shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5">
