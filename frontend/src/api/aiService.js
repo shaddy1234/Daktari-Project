@@ -1,23 +1,31 @@
-const FUNCTIONS_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1`;
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
-const headers = {
-  'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-  'Content-Type': 'application/json',
+// Get token from localStorage or state management
+const getAuthHeader = () => {
+  const token = localStorage.getItem("supabase.auth.token");
+  return {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  };
 };
 
 // Symptom checker service
 export const analyzeSymptoms = async (symptoms, userId) => {
   try {
-    const response = await fetch(`${FUNCTIONS_URL}/symptom-checker`, {
-      method: 'POST',
-      headers,
+    const response = await fetch(`${API_URL}/symptoms/analyze`, {
+      method: "POST",
+      headers: getAuthHeader(),
       body: JSON.stringify({ symptoms, userId }),
     });
-    
-    if (!response.ok) throw new Error('Failed to analyze symptoms');
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to analyze symptoms");
+    }
+
     return await response.json();
   } catch (error) {
-    console.error('Error analyzing symptoms:', error);
+    console.error("Error analyzing symptoms:", error);
     throw error;
   }
 };
@@ -25,16 +33,20 @@ export const analyzeSymptoms = async (symptoms, userId) => {
 // Nutrition planner service
 export const generateMealPlan = async (preferences, caloriesTarget, userId) => {
   try {
-    const response = await fetch(`${FUNCTIONS_URL}/nutrition-planner`, {
-      method: 'POST',
-      headers,
+    const response = await fetch(`${API_URL}/nutrition/plan`, {
+      method: "POST",
+      headers: getAuthHeader(),
       body: JSON.stringify({ preferences, caloriesTarget, userId }),
     });
-    
-    if (!response.ok) throw new Error('Failed to generate meal plan');
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to generate meal plan");
+    }
+
     return await response.json();
   } catch (error) {
-    console.error('Error generating meal plan:', error);
+    console.error("Error generating meal plan:", error);
     throw error;
   }
 };
@@ -42,16 +54,20 @@ export const generateMealPlan = async (preferences, caloriesTarget, userId) => {
 // Chatbot service
 export const sendChatMessage = async (message, userId) => {
   try {
-    const response = await fetch(`${FUNCTIONS_URL}/chatbot`, {
-      method: 'POST',
-      headers,
+    const response = await fetch(`${API_URL}/chat/message`, {
+      method: "POST",
+      headers: getAuthHeader(),
       body: JSON.stringify({ message, userId }),
     });
-    
-    if (!response.ok) throw new Error('Failed to get chatbot response');
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || "Failed to get chatbot response");
+    }
+
     return await response.json();
   } catch (error) {
-    console.error('Error sending chat message:', error);
+    console.error("Error sending chat message:", error);
     throw error;
   }
 };

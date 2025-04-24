@@ -1,9 +1,22 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { UserCircleIcon } from "@heroicons/react/24/outline";
+import { useAuth } from "../contexts/AuthContext";
 
 function Navbar() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const { isAuthenticated, user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setShowProfileMenu(false);
+      navigate("/");
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
 
   return (
     <nav className="bg-white shadow-lg sticky top-0 z-50">
@@ -16,6 +29,7 @@ function Navbar() {
               </span>
             </Link>
           </div>
+
           <div className="hidden sm:ml-10 sm:flex sm:space-x-8 flex items-center">
             <Link
               to="/"
@@ -23,12 +37,24 @@ function Navbar() {
             >
               Home
             </Link>
-            <Link
-              to="/features"
-              className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md font-medium"
-            >
-              Features
-            </Link>
+
+            {isAuthenticated && (
+              <>
+                <Link
+                  to="/symptom-checker"
+                  className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md font-medium"
+                >
+                  Symptom Checker
+                </Link>
+                <Link
+                  to="/chatbot"
+                  className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md font-medium"
+                >
+                  AI Assistant
+                </Link>
+              </>
+            )}
+
             <Link
               to="/about"
               className="text-gray-700 hover:text-primary-600 px-3 py-2 rounded-md font-medium"
@@ -47,20 +73,40 @@ function Navbar() {
               </button>
               {showProfileMenu && (
                 <div className="absolute right-0 mt-2 w-48 rounded-lg shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5">
-                  <Link
-                    to="/signin"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    onClick={() => setShowProfileMenu(false)}
-                  >
-                    Sign In
-                  </Link>
-                  <Link
-                    to="/signup"
-                    className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    onClick={() => setShowProfileMenu(false)}
-                  >
-                    Sign Up
-                  </Link>
+                  {isAuthenticated ? (
+                    <>
+                      <Link
+                        to="/profile"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setShowProfileMenu(false)}
+                      >
+                        My Profile
+                      </Link>
+                      <button
+                        onClick={handleLogout}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        Sign Out
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        to="/signin"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setShowProfileMenu(false)}
+                      >
+                        Sign In
+                      </Link>
+                      <Link
+                        to="/signup"
+                        className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        onClick={() => setShowProfileMenu(false)}
+                      >
+                        Sign Up
+                      </Link>
+                    </>
+                  )}
                 </div>
               )}
             </div>

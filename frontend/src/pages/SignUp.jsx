@@ -1,26 +1,33 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '../supabase';
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import api from "../api/apiClient";
+import LoadingButton from "../components/LoadingButton";
 
 function SignUp() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const handleSignUp = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-      
-      if (error) throw error;
-      
-      navigate('/');
+      const response = await api.auth.signUp(email, password);
+
+      if (response.success) {
+        // Create initial profile if needed
+        // You might want to collect more profile info during signup
+        // For now, just redirect to homepage
+        navigate("/");
+      }
     } catch (error) {
       setError(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -31,6 +38,15 @@ function SignUp() {
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Create your account
           </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Or{" "}
+            <Link
+              to="/signin"
+              className="font-medium text-primary-600 hover:text-primary-500"
+            >
+              sign in to your existing account
+            </Link>
+          </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSignUp}>
           {error && (
@@ -52,6 +68,7 @@ function SignUp() {
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={isLoading}
               />
             </div>
             <div>
@@ -67,17 +84,19 @@ function SignUp() {
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                disabled={isLoading}
               />
             </div>
           </div>
 
           <div>
-            <button
+            <LoadingButton
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              isLoading={isLoading}
+              className="w-full"
             >
               Sign up
-            </button>
+            </LoadingButton>
           </div>
         </form>
       </div>

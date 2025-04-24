@@ -1,26 +1,30 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '../supabase';
+import React, { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import api from "../api/apiClient";
+import LoadingButton from "../components/LoadingButton";
 
 function SignIn() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const handleSignIn = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError(null);
+
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-      
-      if (error) throw error;
-      
-      navigate('/');
+      const response = await api.auth.signIn(email, password);
+
+      if (response.success) {
+        navigate("/");
+      }
     } catch (error) {
       setError(error.message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -31,6 +35,15 @@ function SignIn() {
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Sign in to your account
           </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Or{" "}
+            <Link
+              to="/signup"
+              className="font-medium text-primary-600 hover:text-primary-500"
+            >
+              create a new account
+            </Link>
+          </p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSignIn}>
           {error && (
@@ -52,6 +65,7 @@ function SignIn() {
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={isLoading}
               />
             </div>
             <div>
@@ -67,17 +81,19 @@ function SignIn() {
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                disabled={isLoading}
               />
             </div>
           </div>
 
           <div>
-            <button
+            <LoadingButton
               type="submit"
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+              isLoading={isLoading}
+              className="w-full"
             >
               Sign in
-            </button>
+            </LoadingButton>
           </div>
         </form>
       </div>

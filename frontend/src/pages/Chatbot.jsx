@@ -1,30 +1,65 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from "react";
+import api from "../api/apiClient";
+import LoadingButton from "../components/LoadingButton";
 
 function Chatbot() {
   const [messages, setMessages] = useState([
-    { text: "Hello! I'm your AI health assistant. How can I help you today?", isBot: true }
+    {
+      text: "Hello! I'm your AI health assistant. How can I help you today?",
+      isBot: true,
+    },
   ]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const messagesEndRef = useRef(null);
 
-  const handleSubmit = (e) => {
+  // User ID - in a real app, get this from auth context
+  const userId = "current-user-id"; // Replace with actual user ID from auth
+
+  // Auto-scroll to bottom of messages
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!input.trim()) return;
 
-    setMessages([...messages, { text: input, isBot: false }]);
-    setInput('');
-    
-    // Simulate AI response
-    setTimeout(() => {
-      setMessages(prev => [...prev, {
-        text: "I understand your concern. While I can provide general information, please consult with a healthcare professional for medical advice.",
-        isBot: true
-      }]);
-    }, 1000);
+    // Add user message to chat
+    setMessages((prev) => [...prev, { text: input, isBot: false }]);
+    const userMessage = input;
+    setInput("");
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      // Send message to backend API
+      const response = await api.chat.sendMessage(userMessage, userId);
+
+      if (response.success) {
+        // Add AI response to chat
+        setMessages((prev) => [
+          ...prev,
+          {
+            text: response.data.aiResponse,
+            isBot: true,
+          },
+        ]);
+      }
+    } catch (error) {
+      setError("Failed to get a response. Please try again.");
+      console.error("Chat error:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-4xl font-bold mb-8 text-gray-900">AI Health Assistant</h1>
+      <h1 className="text-4xl font-bold mb-8 text-gray-900">
+        AI Health Assistant
+      </h1>
 
       <div className="bg-white rounded-xl shadow-md p-6 mb-4">
         <div className="h-96 overflow-y-auto mb-4 space-y-4">
@@ -33,13 +68,19 @@ function Chatbot() {
               key={index}
               className={`p-4 rounded-lg ${
                 message.isBot
-                  ? 'bg-gray-100 text-gray-800'
-                  : 'bg-primary-600 text-white ml-auto'
-              } ${message.isBot ? 'mr-12' : 'ml-12'} max-w-[80%]`}
+                  ? "bg-gray-100 text-gray-800"
+                  : "bg-primary-600 text-white ml-auto"
+              } ${message.isBot ? "mr-12" : "ml-12"} max-w-[80%]`}
             >
               {message.text}
             </div>
           ))}
+          {error && (
+            <div className="p-4 rounded-lg bg-red-100 text-red-800 mr-12 max-w-[80%]">
+              {error}
+            </div>
+          )}
+          <div ref={messagesEndRef} />
         </div>
 
         <form onSubmit={handleSubmit} className="flex gap-2">
@@ -49,13 +90,11 @@ function Chatbot() {
             onChange={(e) => setInput(e.target.value)}
             placeholder="Type your message..."
             className="flex-1 p-2 border border-gray-300 rounded-md"
+            disabled={isLoading}
           />
-          <button
-            type="submit"
-            className="bg-primary-600 text-white px-6 py-2 rounded-md hover:bg-primary-700"
-          >
+          <LoadingButton type="submit" isLoading={isLoading}>
             Send
-          </button>
+          </LoadingButton>
         </form>
       </div>
     </div>
