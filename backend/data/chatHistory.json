@@ -1,0 +1,23 @@
+[
+  {
+    "id": "7e03131c-3165-4e3d-ac64-bbcc35cf8152",
+    "user_id": "5532edd2-9689-4a72-8989-20f35c848ca3",
+    "message": "Hi there",
+    "ai_response": "Hi there! How can I help you today?\n",
+    "created_at": "2025-04-26T11:24:57.317Z"
+  },
+  {
+    "id": "8fd5773a-886f-40a3-8b2d-44c7db89dc9d",
+    "user_id": "5532edd2-9689-4a72-8989-20f35c848ca3",
+    "message": "I would to know the symptoms of ear cancer",
+    "ai_response": "I understand you'd like to know more about the symptoms of ear cancer.  However, I cannot diagnose medical conditions.  Ear cancer symptoms can vary greatly depending on the type and location of the cancer.  Some potential symptoms may include ear pain, hearing loss, bleeding from the ear, a feeling of fullness in the ear, or a lump or growth in the ear.  It's crucial to remember that these symptoms can also be caused by many other, less serious conditions.\n\nIf you are experiencing any concerning symptoms in your ear, please see a qualified healthcare professional like a doctor or nurse practitioner for a proper diagnosis and treatment plan.  They can accurately assess your situation and provide the best course of action.\n",
+    "created_at": "2025-04-26T11:25:55.140Z"
+  },
+  {
+    "id": "78bedfb5-7e87-4f04-bee7-616650c0667d",
+    "user_id": "5532edd2-9689-4a72-8989-20f35c848ca3",
+    "message": "Okay, thanks",
+    "ai_response": "You're welcome!  Please don't hesitate to reach out if you have any other health-related questions. Remember, I'm here to provide information and support, but always consult a doctor for medical advice.\n",
+    "created_at": "2025-04-26T11:26:17.997Z"
+  }
+]

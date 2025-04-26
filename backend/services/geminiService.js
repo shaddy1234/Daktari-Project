@@ -34,9 +34,34 @@ async function generateContent(prompt, maxTokens = 500) {
  * @param {string} message - User's health question
  * @returns {Promise<string>} - AI response text
  */
-async function generateHealthResponse(message) {
-  const prompt = `As a medical AI assistant, please respond to this health-related question: ${message}`;
-  return await generateContent(prompt, 500);
+async function generateHealthResponse(currentMessage, history = []) {
+  let prompt = `You are DoktaAI, a helpful AI medical assistant.
+Your primary goal is to provide informative and supportive health-related guidance.
+**Important Rules:**
+*   **DO NOT provide medical diagnoses.** Always state clearly that you cannot diagnose conditions.
+*   **DO NOT provide specific treatment plans.** Suggest general wellness practices or advise consulting a doctor.
+*   **ALWAYS recommend consulting a qualified healthcare professional (like a doctor or nurse practitioner) for any medical concerns, diagnosis, or treatment.**
+*   Keep your responses concise, empathetic, and easy to understand.
+*   Use the conversation history for context.
+
+Conversation History (Oldest to Newest):`;
+
+  if (history.length > 0) {
+    history.forEach((turn) => {
+      prompt += `\nUser: ${turn.message}`;
+      prompt += `\nAI: ${turn.ai_response}`;
+    });
+  } else {
+    prompt += "\n(No previous conversation history)";
+  }
+
+  prompt += `\n\nUser: ${currentMessage}`;
+  prompt += `\nAI:`; // Ready for the AI's response
+
+  console.log("Generated Prompt for Gemini:", prompt); // Log the prompt for debugging
+
+  // Use a slightly higher token limit if including history
+  return await generateContent(prompt, 700);
 }
 
 /**

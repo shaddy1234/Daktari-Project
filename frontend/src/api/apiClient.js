@@ -31,7 +31,7 @@ const clearAuthToken = () => {
 // Standard headers for authenticated requests
 const getAuthHeaders = () => {
   const token = getAuthToken(); // Get the potentially parsed token
-  console.log("Token used for header:", token); // Add this log
+  // console.log("Token used for header:", token); // Add this log
   return {
     Authorization: `Bearer ${token}`,
     "Content-Type": "application/json",

@@ -1,8 +1,18 @@
+const path = require("path");
+const crypto = require("crypto"); // For generating unique IDs
 const { analyzeSymptoms } = require("../services/geminiService");
+const storageService = require("../services/storageService"); // Import the new service
 
-// In-memory store for symptom analyses (Data lost on server restart)
-let symptomAnalysesStore = [];
-let nextAnalysisId = 1; // Simple ID generator
+// Define the path to the JSON storage file for symptoms
+const DATA_FILE_PATH = path.join(
+  __dirname,
+  "..",
+  "data",
+  "symptomAnalyses.json"
+);
+
+// --- Removed readAnalysesFromFile and writeAnalysesToFile helper functions ---
+// They are now handled by storageService
 
 /**
  * Analyze user symptoms
@@ -41,18 +51,36 @@ async function analyzeUserSymptoms(req, res, next) {
     const analysis = await analyzeSymptoms(symptoms);
     console.log("Gemini analysis received.");
 
-    // --- Store in-memory ---
-    console.log("Saving analysis to in-memory JSON store...");
+    // --- Store using storageService ---
+    console.log("Reading existing analyses using storageService...");
+    // Read data specifically from the symptom analyses file
+    const allAnalyses = await storageService.readData(DATA_FILE_PATH);
+
+    console.log("Saving analysis using storageService...");
     const newAnalysisRecord = {
-      id: nextAnalysisId++, // Assign a simple ID
+      id: crypto.randomUUID(), // Generate a unique ID
       user_id: authenticatedUserId,
       symptoms,
       ai_analysis: { analysis }, // Keep structure similar
       created_at: new Date().toISOString(), // Add timestamp
     };
-    symptomAnalysesStore.push(newAnalysisRecord);
-    console.log("Analysis saved successfully to memory:", newAnalysisRecord);
-    // --- End in-memory store ---
+
+    // Ensure allAnalyses is an array before pushing
+    if (!Array.isArray(allAnalyses)) {
+      console.error(
+        "Data read from file is not an array. Resetting to empty array."
+      );
+      allAnalyses = []; // Or handle this error more robustly depending on requirements
+    }
+
+    allAnalyses.push(newAnalysisRecord);
+    // Write data specifically to the symptom analyses file
+    await storageService.writeData(DATA_FILE_PATH, allAnalyses);
+    console.log(
+      "Analysis saved successfully via storageService:",
+      newAnalysisRecord
+    );
+    // --- End storageService store ---
 
     res.status(200).json({
       success: true,
@@ -66,15 +94,19 @@ async function analyzeUserSymptoms(req, res, next) {
   } catch (error) {
     console.error(
       "Error in analyzeUserSymptoms controller:",
-      JSON.stringify(error, Object.getOwnPropertyNames(error), 2)
+      // Avoid stringifying the whole error object if it might contain circular references
+      error.message || JSON.stringify(error)
     );
-    // Send the generic error message to the client
-    next(new Error("Failed to analyze symptoms due to an internal error."));
+    next(
+      error instanceof Error
+        ? error
+        : new Error("Failed to analyze symptoms due to an internal error.")
+    );
   }
 }
 
 /**
- * Get user symptom history
+ * Get user symptom history from JSON file
  * @route GET /api/symptoms/history/:userId
  */
 async function getSymptomHistory(req, res, next) {
@@ -89,51 +121,57 @@ async function getSymptomHistory(req, res, next) {
       });
     }
 
-    // Optional: Keep check for logging or if you re-introduce client-side filtering later
+    // Security Check: Ensure the authenticated user matches the requested userId
     if (userId !== authenticatedUserId) {
       console.warn(
-        `Attempt to get history for user ${userId} by authenticated user ${authenticatedUserId}`
+        `Forbidden: Attempt to get history for user ${userId} by authenticated user ${authenticatedUserId}`
       );
-      // Note: With RLS disabled, this check doesn't prevent access, but logs the attempt.
-      // You could return 403 here if you still want API-level authorization.
-      // return res.status(403).json({
-      //   success: false,
-      //   error: "Forbidden: Cannot access another user's history",
-      // });
+      return res.status(403).json({
+        success: false,
+        error: "Forbidden: Cannot access another user's history",
+      });
     }
 
-    // --- Get from database using SERVICE ROLE client ---
+    // --- Get using storageService ---
     console.log(
-      `Fetching symptom history for user ${userId} using service role client...`
+      `Fetching symptom history for user ${userId} using storageService...`
     );
-    const { data, error } = await req.supabase // Use req.supabase (service role)
-      .from("symptoms")
-      .select("*")
-      .eq("user_id", userId) // Filter by user_id still needed
-      .order("created_at", { ascending: false });
+    // Read data specifically from the symptom analyses file
+    const allAnalyses = await storageService.readData(DATA_FILE_PATH);
 
-    if (error) {
+    // Ensure allAnalyses is an array before filtering
+    if (!Array.isArray(allAnalyses)) {
       console.error(
-        "Supabase select error (using service role):",
-        JSON.stringify(error, null, 2)
+        "Data read from file is not an array for history retrieval."
       );
-      throw error;
+      // Depending on desired behavior, return empty or throw error
+      return res.status(200).json({ success: true, data: [] });
     }
 
-    console.log(`Found ${data.length} symptom records for user ${userId}.`);
-    // --- End get from database ---
+    const userHistory = allAnalyses
+      .filter((record) => record.user_id === userId)
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at)); // Sort descending by date
+
+    console.log(
+      `Found ${userHistory.length} symptom records for user ${userId} via storageService.`
+    );
+    // --- End get using storageService ---
 
     res.status(200).json({
       success: true,
-      data, // Return the filtered and sorted array
+      data: userHistory, // Return the filtered and sorted array
     });
   } catch (error) {
     console.error(
       "Error in getSymptomHistory controller:",
-      JSON.stringify(error, Object.getOwnPropertyNames(error), 2)
+      error.message || JSON.stringify(error)
     );
     next(
-      new Error("Failed to retrieve symptom history due to an internal error.")
+      error instanceof Error
+        ? error
+        : new Error(
+            "Failed to retrieve symptom history due to an internal error."
+          )
     );
   }
 }
