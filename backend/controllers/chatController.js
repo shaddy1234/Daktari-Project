@@ -143,16 +143,15 @@ async function getChatHistoryHandler(req, res, next) {
 
     res.status(200).json({
       success: true,
-      // Return history formatted for the frontend if needed, or raw records
+      // Return history formatted for the frontend
       data: userHistory
         .map((record) => ({
           text: record.message,
           isBot: false,
-          timestamp: record.created_at, // Include timestamp if needed
+          timestamp: record.created_at,
         }))
         .concat(
           userHistory.map((record) => ({
-            // This might need adjustment based on how frontend expects history
             text: record.ai_response,
             isBot: true,
             timestamp: record.created_at,
@@ -173,7 +172,70 @@ async function getChatHistoryHandler(req, res, next) {
   }
 }
 
+/**
+ * Clear user's chat history from JSON file
+ * @route DELETE /api/chat/history/:userId
+ */
+async function clearChatHistoryHandler(req, res, next) {
+  try {
+    const { userId } = req.params;
+    const authenticatedUserId = req.user.id;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        error: "User ID is required",
+      });
+    }
+
+    // Security Check: Ensure the authenticated user matches the requested userId
+    if (userId !== authenticatedUserId) {
+      console.warn(
+        `Forbidden: Attempt to clear chat history for user ${userId} by authenticated user ${authenticatedUserId}`
+      );
+      return res.status(403).json({
+        success: false,
+        error: "Forbidden: Cannot clear another user's chat history",
+      });
+    }
+
+    // --- Clear using storageService ---
+    console.log(
+      `Clearing chat history for user ${userId} using storageService...`
+    );
+    const allChats = await storageService.readData(CHAT_DATA_FILE_PATH);
+    const validChats = Array.isArray(allChats) ? allChats : [];
+
+    // Filter out the records belonging to the user, keeping others
+    const remainingChats = validChats.filter(
+      (record) => record.user_id !== userId
+    );
+
+    // Write the filtered data back to the file
+    await storageService.writeData(CHAT_DATA_FILE_PATH, remainingChats);
+
+    console.log(`Chat history cleared successfully for user ${userId}.`);
+    // --- End clear using storageService ---
+
+    res.status(200).json({
+      success: true,
+      message: "Chat history cleared successfully.",
+    });
+  } catch (error) {
+    console.error(
+      "Error in clearChatHistoryHandler controller:",
+      error.message || JSON.stringify(error)
+    );
+    next(
+      error instanceof Error
+        ? error
+        : new Error("Failed to clear chat history due to an internal error.")
+    );
+  }
+}
+
 module.exports = {
   sendMessage,
   getChatHistoryHandler,
+  clearChatHistoryHandler, // Export the new handler
 };

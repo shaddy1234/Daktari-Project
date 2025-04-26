@@ -43,6 +43,7 @@ async function apiRequest(endpoint, options = {}) {
   const url = `${API_URL}${endpoint}`;
 
   // Add auth headers to authenticated requests
+  // Default to authenticated unless explicitly set to false
   if (options.authenticated !== false) {
     options.headers = {
       ...getAuthHeaders(),
@@ -52,16 +53,29 @@ async function apiRequest(endpoint, options = {}) {
 
   try {
     const response = await fetch(url, options);
-    const data = await response.json();
+
+    // Check if response is JSON before parsing
+    const contentType = response.headers.get("content-type");
+    let data;
+    if (contentType && contentType.indexOf("application/json") !== -1) {
+      data = await response.json();
+    } else {
+      // Handle non-JSON responses if necessary, e.g., for DELETE success with no body
+      data = { success: response.ok, status: response.status };
+    }
 
     if (!response.ok) {
-      throw new Error(data.error || "Something went wrong");
+      // Use error message from JSON data if available, otherwise use status text
+      throw new Error(
+        data?.error || response.statusText || "Something went wrong"
+      );
     }
 
     return data;
   } catch (error) {
     console.error(`API Error (${endpoint}):`, error);
-    throw error;
+    // Ensure the error thrown has a message property
+    throw new Error(error.message || "An unknown API error occurred");
   }
 }
 
@@ -70,13 +84,13 @@ const auth = {
   signUp: async (email, password) => {
     const response = await apiRequest("/auth/signup", {
       method: "POST",
-      authenticated: false,
+      authenticated: false, // Explicitly false for signup
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
 
     if (response.success && response.data) {
-      setAuthToken(response.data);
+      setAuthToken(response.data); // Assuming response.data contains the session object
     }
 
     return response;
@@ -85,38 +99,41 @@ const auth = {
   signIn: async (email, password) => {
     const response = await apiRequest("/auth/signin", {
       method: "POST",
-      authenticated: false,
+      authenticated: false, // Explicitly false for signin
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
 
     if (response.success && response.data) {
-      setAuthToken(response.data);
+      setAuthToken(response.data); // Assuming response.data contains the session object
     }
 
     return response;
   },
 
   signOut: async () => {
+    // Sign out might not need auth depending on backend implementation
+    // Assuming it does for session invalidation server-side
     const response = await apiRequest("/auth/signout", {
       method: "POST",
+      // authenticated: true (default)
     });
 
-    if (response.success) {
-      clearAuthToken();
-    }
+    // Always clear token on frontend regardless of backend response for signout
+    clearAuthToken();
 
     return response;
   },
 
   getProfile: async (userId) => {
-    return await apiRequest(`/auth/profile/${userId}`);
+    return await apiRequest(`/auth/profile/${userId}`); // authenticated: true (default)
   },
 
   updateProfile: async (userId, updates) => {
     return await apiRequest(`/auth/profile/${userId}`, {
       method: "PUT",
-      body: JSON.stringify(updates),
+      body: JSON.stringify(updates), // Content-Type header added by default
+      // authenticated: true (default)
     });
   },
 };
@@ -127,11 +144,12 @@ const symptoms = {
     return await apiRequest("/symptoms/analyze", {
       method: "POST",
       body: JSON.stringify({ symptoms, userId }),
+      // authenticated: true (default)
     });
   },
 
   getHistory: async (userId) => {
-    return await apiRequest(`/symptoms/history/${userId}`);
+    return await apiRequest(`/symptoms/history/${userId}`); // authenticated: true (default)
   },
 };
 
@@ -141,11 +159,20 @@ const chat = {
     return await apiRequest("/chat/message", {
       method: "POST",
       body: JSON.stringify({ message, userId }),
+      // authenticated: true (default)
     });
   },
 
   getHistory: async (userId) => {
-    return await apiRequest(`/chat/history/${userId}`);
+    return await apiRequest(`/chat/history/${userId}`); // authenticated: true (default)
+  },
+
+  // Add function to clear history
+  clearHistory: async (userId) => {
+    return await apiRequest(`/chat/history/${userId}`, {
+      method: "DELETE",
+      // authenticated: true (default)
+    });
   },
 };
 
@@ -155,41 +182,46 @@ const nutrition = {
     return await apiRequest("/nutrition/plan", {
       method: "POST",
       body: JSON.stringify({ preferences, caloriesTarget, userId }),
+      // authenticated: true (default)
     });
   },
 
   getPlans: async (userId) => {
-    return await apiRequest(`/nutrition/plans/${userId}`);
+    return await apiRequest(`/nutrition/plans/${userId}`); // authenticated: true (default)
   },
 
   getPlan: async (id) => {
-    return await apiRequest(`/nutrition/plan/${id}`);
+    return await apiRequest(`/nutrition/plan/${id}`); // authenticated: true (default)
   },
 };
 
 // Medication endpoints
 const medications = {
   add: async (medicationData) => {
+    // Assuming medicationData contains userId or it's inferred from token on backend
     return await apiRequest("/medications", {
       method: "POST",
       body: JSON.stringify(medicationData),
+      // authenticated: true (default)
     });
   },
 
   get: async (userId) => {
-    return await apiRequest(`/medications/${userId}`);
+    return await apiRequest(`/medications/${userId}`); // authenticated: true (default)
   },
 
   update: async (id, updates) => {
     return await apiRequest(`/medications/${id}`, {
       method: "PUT",
       body: JSON.stringify(updates),
+      // authenticated: true (default)
     });
   },
 
   delete: async (id) => {
     return await apiRequest(`/medications/${id}`, {
       method: "DELETE",
+      // authenticated: true (default)
     });
   },
 };
@@ -197,18 +229,20 @@ const medications = {
 // Mental health endpoints
 const mentalHealth = {
   addAssessment: async (assessmentData) => {
+    // Assuming assessmentData contains userId or it's inferred from token
     return await apiRequest("/mental-health/assessment", {
       method: "POST",
       body: JSON.stringify(assessmentData),
+      // authenticated: true (default)
     });
   },
 
   getHistory: async (userId) => {
-    return await apiRequest(`/mental-health/history/${userId}`);
+    return await apiRequest(`/mental-health/history/${userId}`); // authenticated: true (default)
   },
 
   getSummary: async (userId) => {
-    return await apiRequest(`/mental-health/summary/${userId}`);
+    return await apiRequest(`/mental-health/summary/${userId}`); // authenticated: true (default)
   },
 };
 
@@ -219,6 +253,6 @@ export default {
   nutrition,
   medications,
   mentalHealth,
-  getAuthToken,
-  clearAuthToken,
+  getAuthToken, // Keep export if used directly elsewhere (e.g., AuthContext)
+  clearAuthToken, // Keep export if used directly elsewhere (e.g., AuthContext)
 };
