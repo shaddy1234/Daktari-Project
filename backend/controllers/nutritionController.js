@@ -1,4 +1,4 @@
-const { generateMealPlan } = require("../services/openaiService");
+const { generateMealPlan } = require("../services/geminiService");
 
 /**
  * Generate a nutrition plan

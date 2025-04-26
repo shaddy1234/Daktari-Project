@@ -6,6 +6,11 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const sessionData = localStorage.getItem("supabase.auth.token");
+
+  const userId = sessionData ? JSON.parse(sessionData).session.user.id : null;
+
+  console.log("User ID from session data:", userId);
 
   // Check if user is already logged in on initial load
   useEffect(() => {
@@ -20,7 +25,7 @@ export function AuthProvider({ children }) {
         // Verify the token with backend
         // This would be a good place to add a /me endpoint to your API
         // For now, we'll just assume the token is valid if it exists
-        setUser({ id: "current-user-id" }); // Replace with actual user info
+        setUser({ id: userId }); // Replace with actual user info
       } catch (error) {
         console.error("Failed to load user:", error);
       } finally {

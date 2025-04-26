@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import api from "../api/apiClient";
 import LoadingButton from "../components/LoadingButton";
+import { useAuth } from "../contexts/AuthContext";
 
 function Chatbot() {
   const [messages, setMessages] = useState([
@@ -13,9 +14,7 @@ function Chatbot() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   const messagesEndRef = useRef(null);
-
-  // User ID - in a real app, get this from auth context
-  const userId = "current-user-id"; // Replace with actual user ID from auth
+  const { user } = useAuth();
 
   // Auto-scroll to bottom of messages
   useEffect(() => {
@@ -35,7 +34,7 @@ function Chatbot() {
 
     try {
       // Send message to backend API
-      const response = await api.chat.sendMessage(userMessage, userId);
+      const response = await api.chat.sendMessage(userMessage, user.id);
 
       if (response.success) {
         // Add AI response to chat

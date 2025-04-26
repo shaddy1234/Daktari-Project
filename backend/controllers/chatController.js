@@ -1,4 +1,4 @@
-const { generateHealthResponse } = require("../services/openaiService");
+const { generateHealthResponse } = require("../services/geminiService");
 const {
   saveChatInteraction,
   getChatHistory,

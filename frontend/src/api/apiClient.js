@@ -2,10 +2,20 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 // Get authentication token from local storage
 const getAuthToken = () => {
-  const session = JSON.parse(
-    localStorage.getItem("supabase.auth.token") || "{}"
-  );
-  return session?.access_token || "";
+  const sessionData = localStorage.getItem("supabase.auth.token"); // Get raw string
+  // console.log("SessionData:", sessionData);
+  if (!sessionData) {
+    return ""; // Return empty if nothing in localStorage
+  }
+  try {
+    const session = JSON.parse(sessionData); // Parse the JSON string
+    return session?.session?.access_token || ""; // Get access_token, return "" if missing or parsing failed implicitly before
+  } catch (e) {
+    console.error("Failed to parse auth token from localStorage:", e);
+    // Optional: Clear the corrupted token to prevent future errors
+    clearAuthToken();
+    return ""; // Return empty on parse error
+  }
 };
 
 // Set authentication token in local storage
@@ -19,10 +29,14 @@ const clearAuthToken = () => {
 };
 
 // Standard headers for authenticated requests
-const getAuthHeaders = () => ({
-  Authorization: `Bearer ${getAuthToken()}`,
-  "Content-Type": "application/json",
-});
+const getAuthHeaders = () => {
+  const token = getAuthToken(); // Get the potentially parsed token
+  console.log("Token used for header:", token); // Add this log
+  return {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  };
+};
 
 // API request wrapper with error handling
 async function apiRequest(endpoint, options = {}) {
@@ -206,4 +220,5 @@ export default {
   medications,
   mentalHealth,
   getAuthToken,
+  clearAuthToken,
 };

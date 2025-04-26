@@ -12,6 +12,8 @@ import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
 import Footer from "./components/Footer";
 import LoadingScreen from "./components/LoadingScreen";
+import About from "./pages/About"; // Import About page
+import Profile from "./pages/Profile";
 
 // Protected route component
 const ProtectedRoute = ({ children }) => {
@@ -40,8 +42,17 @@ function AppRoutes() {
       <Route path="/" element={<Home />} />
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
+      <Route path="/about" element={<About />} />
 
       {/* Protected Routes */}
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        }
+      />
       <Route
         path="/symptom-checker"
         element={

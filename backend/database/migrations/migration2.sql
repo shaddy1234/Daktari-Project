@@ -74,15 +74,16 @@ CREATE TABLE IF NOT EXISTS mental_health_assessments (
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
--- Enable Row Level Security
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE symptoms ENABLE ROW LEVEL SECURITY;
-ALTER TABLE medications ENABLE ROW LEVEL SECURITY;
-ALTER TABLE nutrition_plans ENABLE ROW LEVEL SECURITY;
-ALTER TABLE chat_history ENABLE ROW LEVEL SECURITY;
-ALTER TABLE mental_health_assessments ENABLE ROW LEVEL SECURITY;
+-- Disable Row Level Security (Commented out)
+-- ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE symptoms ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE medications ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE nutrition_plans ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE chat_history ENABLE ROW LEVEL SECURITY;
+-- ALTER TABLE mental_health_assessments ENABLE ROW LEVEL SECURITY;
 
--- Create Policies
+-- Remove Policies (Commented out)
+/*
 CREATE POLICY "Users can view own profile"
   ON profiles FOR SELECT
   TO authenticated
@@ -130,3 +131,4 @@ CREATE POLICY "Users can manage own mental health assessments"
   TO authenticated
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
+*/

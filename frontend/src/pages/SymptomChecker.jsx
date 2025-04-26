@@ -1,15 +1,14 @@
 import React, { useState } from "react";
 import api from "../api/apiClient";
 import LoadingButton from "../components/LoadingButton";
+import { useAuth } from "../contexts/AuthContext";
 
 function SymptomChecker() {
   const [symptoms, setSymptoms] = useState("");
   const [analysis, setAnalysis] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-
-  // User ID - in a real app, get this from auth context
-  const userId = "current-user-id"; // Replace with actual user ID from auth
+  const { user } = useAuth();
 
   const handleAnalyzeSymptoms = async () => {
     if (!symptoms.trim()) return;
@@ -25,7 +24,7 @@ function SymptomChecker() {
         .map((symptom) => symptom.trim())
         .filter((symptom) => symptom.length > 0);
 
-      const response = await api.symptoms.analyze(symptomsArray, userId);
+      const response = await api.symptoms.analyze(symptomsArray, user.id);
 
       if (response.success) {
         setAnalysis(response.data.analysis);

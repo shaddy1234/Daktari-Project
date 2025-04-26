@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import api from "../api/apiClient";
+// import api from "../api/apiClient"; // No longer needed directly for sign-in logic
+import { useAuth } from "../contexts/AuthContext"; // Import useAuth
 import LoadingButton from "../components/LoadingButton";
 
 function SignIn() {
   const navigate = useNavigate();
+  const { login } = useAuth(); // Get the login function from context
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -16,13 +18,21 @@ function SignIn() {
     setError(null);
 
     try {
-      const response = await api.auth.signIn(email, password);
+      // Use the login function from AuthContext
+      const response = await login(email, password);
 
       if (response.success) {
-        navigate("/");
+        navigate("/"); // Redirect on successful login
+      } else {
+        // Handle potential errors returned in the response object even if API call succeeded
+        setError(
+          response.error || "Sign in failed. Please check your credentials."
+        );
       }
     } catch (error) {
-      setError(error.message);
+      // Catch errors from the login function (e.g., network errors)
+      setError(error.message || "An unexpected error occurred during sign in.");
+      console.error("Sign in error:", error); // Log the error for debugging
     } finally {
       setIsLoading(false);
     }
