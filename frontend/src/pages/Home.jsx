@@ -1,10 +1,15 @@
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 
 function FeatureCard({ title, description, icon, link }) {
   return (
-    <Link to={link} className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300">
+    <Link
+      to={link}
+      className="bg-white p-6 rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300"
+    >
       <div className="text-4xl mb-4 flex justify-center">{icon}</div>
-      <h3 className="text-xl font-semibold mb-2 text-gray-800 flex justify-center">{title}</h3>
+      <h3 className="text-xl font-semibold mb-2 text-gray-800 flex justify-center">
+        {title}
+      </h3>
       <p className="text-gray-600">{description}</p>
     </Link>
   );
@@ -28,21 +33,29 @@ function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <h1 className="text-5xl font-bold mb-6 leading-tight">Welcome to DoktaAI</h1>
-              <p className="text-xl mb-8 text-primary-50">Your AI-powered healthcare companion for personalized medical assistance and wellness guidance.</p>
+              <h1 className="text-5xl font-bold mb-6 leading-tight">
+                Welcome to DoktaAI
+              </h1>
+              <p className="text-xl mb-8 text-primary-50">
+                Your AI-powered healthcare companion for personalized medical
+                assistance and wellness guidance.
+              </p>
               <div className="space-x-4">
-                <Link to="/signup" className="inline-block bg-white text-primary-600 px-8 py-4 rounded-lg font-semibold hover:bg-primary-50 transition-colors duration-300">
+                <Link
+                  to="/signup"
+                  className="inline-block bg-white text-primary-600 px-8 py-4 rounded-lg font-semibold hover:bg-primary-50 transition-colors duration-300"
+                >
                   Get Started
                 </Link>
-                <Link to="/signin" className="inline-block border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors duration-300">
+                {/* <Link to="/signin" className="inline-block border-2 border-white text-white px-8 py-4 rounded-lg font-semibold hover:bg-white hover:text-primary-600 transition-colors duration-300">
                   Login
-                </Link>
+                </Link> */}
               </div>
             </div>
             <div className="hidden md:block">
-              <img 
-                src='.././onboarding-img.png'
-                alt="Onboarding Image" 
+              <img
+                src=".././onboarding-img.png"
+                alt="Onboarding Image"
                 className="rounded-2xl shadow-2xl"
               />
             </div>
@@ -53,7 +66,9 @@ function Home() {
       {/* Features Section */}
       <section className="py-24 bg-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold text-center mb-16 text-gray-800">Our Features</h2>
+          <h2 className="text-4xl font-bold text-center mb-16 text-gray-800">
+            Our Features
+          </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <FeatureCard
               title="Symptom Checker"
@@ -92,7 +107,9 @@ function Home() {
       {/* Reviews Section */}
       <section className="py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold text-center mb-16 text-gray-800">What Our Users Say</h2>
+          <h2 className="text-4xl font-bold text-center mb-16 text-gray-800">
+            What Our Users Say
+          </h2>
           <div className="grid md:grid-cols-3 gap-8">
             <ReviewCard
               name="Sarah Johnson"
