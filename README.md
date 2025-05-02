@@ -28,7 +28,7 @@ The frontend is built with React and Vite for a fast and modern user experience.
 ## Getting Started
 ### Prerequisites
 - Node.js
-- Supabase account
+- Supabase acco
 
 ### Installation
 1. Clone the repository:
