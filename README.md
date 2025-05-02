@@ -83,9 +83,6 @@ The frontend is built with React and Vite for a fast and modern user experience.
 SQL migration files are located in the [migrations](http://_vscodecontentref_/1) folder.
 Run these migrations using your preferred database client to set up the required tables and seed data.
 
-## License
-
-[Specify the license here]
 
 ## Contributing
 
