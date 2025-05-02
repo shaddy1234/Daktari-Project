@@ -1,1 +1,23 @@
-[]
+[
+  {
+    "id": "8405aaa4-9d69-42c4-95a0-e881f09b85fa",
+    "user_id": "1dcb0c1d-27e3-45d3-8031-eab58bf9b460",
+    "message": "Hello there",
+    "ai_response": "Hello! How can I help you today?\n",
+    "created_at": "2025-04-30T13:32:18.880Z"
+  },
+  {
+    "id": "2dfed5fe-cda1-4b10-a444-c2a2c0e75075",
+    "user_id": "1dcb0c1d-27e3-45d3-8031-eab58bf9b460",
+    "message": "Naraka pesa",
+    "ai_response": "I'm sorry, I don't understand what \"Naraka pesa\" means.  Could you please rephrase your question or describe your concerns in more detail?  I'm here to help in any way I can, but I need more information to understand your needs.  If you're experiencing any health concerns, please remember that I cannot provide a diagnosis.  It's always best to see a doctor or other qualified healthcare professional for any medical issues.\n",
+    "created_at": "2025-04-30T13:32:33.521Z"
+  },
+  {
+    "id": "2321c5a3-5e91-40d1-bff0-bdb4ce159959",
+    "user_id": "1dcb0c1d-27e3-45d3-8031-eab58bf9b460",
+    "message": "I feel dizzy",
+    "ai_response": "I'm sorry to hear you're feeling dizzy.  Dizziness can have many causes, so it's important to get it checked out.  I cannot diagnose the reason for your dizziness.  Please see a doctor or other qualified healthcare professional as soon as possible to determine the cause and receive appropriate care.  In the meantime, try to rest and stay hydrated.\n",
+    "created_at": "2025-04-30T13:32:56.502Z"
+  }
+]
