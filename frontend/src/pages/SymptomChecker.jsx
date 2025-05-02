@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import api from "../api/apiClient";
 import LoadingButton from "../components/LoadingButton";
 import { useAuth } from "../contexts/AuthContext";
+import ReactMarkdown from "react-markdown"; // Importing ReactMarkdown for rendering markdown content
 
 function SymptomChecker() {
   const [symptoms, setSymptoms] = useState("");
@@ -70,7 +71,11 @@ function SymptomChecker() {
           {analysis && (
             <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-md">
               <h3 className="font-semibold text-lg mb-2">Analysis Result</h3>
-              <p className="text-gray-800 whitespace-pre-line">{analysis}</p>
+              <div className="text-gray-800 whitespace-pre-line">
+                <ReactMarkdown>
+                  {analysis}
+                </ReactMarkdown>
+              </div>
             </div>
           )}
         </div>
