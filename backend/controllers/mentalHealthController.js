@@ -1,3 +1,5 @@
+const { analyzeMentalState } = require("../services/geminiService");
+
 /**
  * Add mental health assessment
  * @route POST /api/mental-health/assessment
@@ -39,6 +41,64 @@ async function addAssessment(req, res, next) {
     });
   } catch (error) {
     next(error);
+  }
+}
+
+/**
+ * Analyze mental health assessment data using AI
+ * @route POST /api/mental-health/analyze
+ */
+async function analyzeMentalHealthAssessment(req, res, next) {
+  try {
+    const { userId, moodRating, symptoms, notes } = req.body;
+    const authenticatedUserId = req.user.id;
+
+    if (!userId || moodRating === undefined) {
+      // Check moodRating presence
+      return res.status(400).json({
+        success: false,
+        error: "User ID and mood rating are required for analysis",
+      });
+    }
+    if (!Array.isArray(symptoms)) {
+      return res.status(400).json({
+        success: false,
+        error: "Symptoms must be provided as an array.",
+      });
+    }
+
+    // Security Check: Ensure user ID matches authenticated user
+    if (userId !== authenticatedUserId) {
+      return res.status(403).json({
+        success: false,
+        error: "Forbidden: User ID mismatch",
+      });
+    }
+
+    // Prepare data for AI service
+    const assessmentDataForAI = {
+      moodRating,
+      symptoms,
+      notes,
+    };
+    // Call the AI service function (replace with your actual implementation)
+    // This function MUST include disclaimers about not being a diagnosis
+    // and recommending professional help.
+    const analysisResult = await analyzeMentalState(assessmentDataForAI);
+
+    // Optionally: Save the analysis result linked to the assessment
+    // This would require modifying the addAssessment logic or adding another DB call here.
+    // For now, just return the analysis like the symptom checker.
+
+    res.status(200).json({
+      success: true,
+      data: {
+        analysis: analysisResult, // Assuming analyzeMentalState returns the analysis string
+      },
+    });
+  } catch (error) {
+    console.error("Error in analyzeMentalHealthAssessment:", error);
+    next(error); // Pass error to the central error handler
   }
 }
 
@@ -165,6 +225,7 @@ function getCommonSymptoms(assessments) {
 
 module.exports = {
   addAssessment,
+  analyzeMentalHealthAssessment,
   getAssessmentHistory,
   getMentalHealthSummary,
 };

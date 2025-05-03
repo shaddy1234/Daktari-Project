@@ -31,7 +31,10 @@ const clearAuthToken = () => {
 // Standard headers for authenticated requests
 const getAuthHeaders = () => {
   const token = getAuthToken(); // Get the potentially parsed token
-  // console.log("Token used for header:", token); // Add this log
+  console.log("Token retrieved for header:", token); // <-- Add this log
+  if (!token) {
+    console.error("Auth token is missing!"); // <-- Add this check
+  }
   return {
     Authorization: `Bearer ${token}`,
     "Content-Type": "application/json",
@@ -49,6 +52,10 @@ async function apiRequest(endpoint, options = {}) {
       ...getAuthHeaders(),
       ...(options.headers || {}),
     };
+    console.log(
+      `Sending request to ${endpoint} with headers:`,
+      options.headers
+    ); // <-- Add this log
   }
 
   try {
@@ -231,6 +238,17 @@ const mentalHealth = {
   addAssessment: async (assessmentData) => {
     // Assuming assessmentData contains userId or it's inferred from token
     return await apiRequest("/mental-health/assessment", {
+      method: "POST",
+      body: JSON.stringify(assessmentData),
+      // authenticated: true (default)
+    });
+  },
+
+  // Add this function for analysis
+  analyzeAssessment: async (assessmentData) => {
+    // This endpoint will perform the AI analysis
+    return await apiRequest("/mental-health/analyze", {
+      // New endpoint
       method: "POST",
       body: JSON.stringify(assessmentData),
       // authenticated: true (default)

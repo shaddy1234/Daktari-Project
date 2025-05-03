@@ -89,8 +89,44 @@ async function generateMealPlan(preferences, caloriesTarget) {
   return await generateContent(prompt, 1000);
 }
 
+/**
+ * Analyze mental state based on user input
+ * @param {object} assessmentData - Object containing moodRating, symptoms, notes
+ * @param {number} assessmentData.moodRating - User's mood rating (1-10)
+ * @param {string[]} assessmentData.symptoms - Array of user-reported symptoms
+ * @param {string} assessmentData.notes - Additional notes from the user
+ * @returns {Promise<string>} - AI analysis and suggestions
+ */
+async function analyzeMentalState(assessmentData) {
+  const { moodRating, symptoms, notes } = assessmentData;
+
+  // Construct a detailed prompt for the AI
+  const prompt = `
+    Analyze the following mental health check-in information and provide supportive feedback and general suggestions.
+    DO NOT provide a diagnosis or medical advice.
+
+    User Input:
+    - Mood Rating (1-10, higher is better): ${moodRating}
+    - Reported Symptoms: ${
+      symptoms.length > 0 ? symptoms.join(", ") : "None reported"
+    }
+    - Additional Notes: ${notes || "None provided"}
+
+    Based on this input:
+    1. Acknowledge the user's reported mood and symptoms in a supportive tone.
+    2. Offer 2-3 general, evidence-based coping strategies or wellness tips relevant to the input (e.g., mindfulness, exercise, social connection, journaling). Keep suggestions brief.
+    3. Include a clear and prominent disclaimer stating that you are an AI assistant, this is not a medical diagnosis or therapy, and the user should consult a qualified healthcare professional or therapist for any mental health concerns.
+
+    Example Disclaimer: "**Disclaimer:** I am an AI assistant. This information is for general awareness and support only, not a substitute for professional medical advice, diagnosis, or treatment. Please consult a qualified healthcare provider or mental health professional for any health concerns."
+  `;
+
+  // Use a higher max token count if needed for more detailed suggestions
+  return await generateContent(prompt, 700);
+}
+
 module.exports = {
   generateHealthResponse,
   analyzeSymptoms,
   generateMealPlan,
+  analyzeMentalState,
 };

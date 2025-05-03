@@ -3,6 +3,7 @@ const {
   addAssessment,
   getAssessmentHistory,
   getMentalHealthSummary,
+  analyzeMentalHealthAssessment,
 } = require("../controllers/mentalHealthController");
 const { authMiddleware } = require("../middleware/auth");
 
@@ -13,6 +14,7 @@ router.use(authMiddleware);
 
 // Mental health endpoints
 router.post("/assessment", addAssessment);
+router.post("/analyze", analyzeMentalHealthAssessment); // Add route for analysis
 router.get("/history/:userId", getAssessmentHistory);
 router.get("/summary/:userId", getMentalHealthSummary);
 
