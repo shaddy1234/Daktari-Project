@@ -64,11 +64,6 @@ Conversation History (Oldest to Newest):`;
   return await generateContent(prompt, 700);
 }
 
-/**
- * Analyze symptoms and provide possible conditions
- * @param {string[]} symptoms - Array of symptoms
- * @returns {Promise<string>} - Analysis result
- */
 async function analyzeSymptoms(symptoms) {
   const prompt = `As a medical AI assistant, analyze these symptoms and provide a preliminary assessment: ${symptoms.join(
     ", "
@@ -76,17 +71,24 @@ async function analyzeSymptoms(symptoms) {
   return await generateContent(prompt, 500);
 }
 
-/**
- * Generate a nutrition plan based on preferences
- * @param {string[]} preferences - Dietary preferences
- * @param {number} caloriesTarget - Daily calorie target
- * @returns {Promise<string>} - Meal plan
- */
 async function generateMealPlan(preferences, caloriesTarget) {
-  const prompt = `Create a healthy meal plan considering these preferences: ${preferences.join(
-    ", "
-  )} with a daily calorie target of ${caloriesTarget}`;
-  return await generateContent(prompt, 1000);
+  try {
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+    const prompt = `Create a detailed meal plan considering these dietary preferences: ${preferences.join(
+      ", "
+    )} with a daily calorie target of ${caloriesTarget} calories. Include breakfast, lunch, dinner, and snacks with approximate calorie counts. Format the response in markdown.`;
+
+    const result = await model.generateContent(prompt);
+    const response = await result.response;
+    // ← await the text() call here
+    const text = await response.text();
+
+    return text;
+  } catch (error) {
+    console.error("Error generating meal plan:", error);
+    throw new Error("Failed to generate meal plan");
+  }
 }
 
 /**

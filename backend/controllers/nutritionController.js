@@ -1,47 +1,55 @@
 const { generateMealPlan } = require("../services/geminiService");
 
-/**
- * Generate a nutrition plan
- * @route POST /api/nutrition/plan
- */
 async function createNutritionPlan(req, res, next) {
   try {
-    const { preferences, caloriesTarget, userId } = req.body;
+    const { preferences, caloriesTarget } = req.body;
+    const userId = req.user.id;
 
-    if (!preferences || !preferences.length || !caloriesTarget || !userId) {
+    if (!Array.isArray(preferences) || preferences.length === 0) {
       return res.status(400).json({
         success: false,
-        error: "Preferences, calorie target, and userId are required",
+        error: "Preferences must be a non-empty array",
+      });
+    }
+    if (!caloriesTarget || isNaN(caloriesTarget)) {
+      return res.status(400).json({
+        success: false,
+        error: "Valid caloriesTarget is required",
       });
     }
 
-    // Generate meal plan using OpenAI
     const mealPlan = await generateMealPlan(preferences, caloriesTarget);
 
-    // Save to database
-    const { data, error } = await req.supabase
+    // Save to database (wrap in an array)
+    const { data, error: dbError } = await req.supabase
       .from("nutrition_plans")
-      .insert({
-        user_id: userId,
-        dietary_preferences: preferences,
-        meal_plan: { plan: mealPlan },
-        calories_target: caloriesTarget,
-      })
+      .insert([
+        {
+          user_id: userId,
+          dietary_preferences: preferences,
+          meal_plan: { plan: mealPlan },
+          calories_target: caloriesTarget,
+        },
+      ])
       .select();
 
-    if (error) throw error;
+    if (dbError) {
+      console.error("Database error inserting nutrition plan:", dbError);
+      return res.status(500).json({
+        success: false,
+        error: dbError.message || "Failed to save nutrition plan",
+      });
+    }
 
     res.status(201).json({
       success: true,
       data: {
-        preferences,
-        caloriesTarget,
+        ...data[0],
         mealPlan,
-        id: data[0].id,
-        timestamp: new Date(),
       },
     });
   } catch (error) {
+    console.error("Error creating nutrition plan:", error);
     next(error);
   }
 }

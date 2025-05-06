@@ -19,5 +19,12 @@
     "message": "I feel dizzy",
     "ai_response": "I'm sorry to hear you're feeling dizzy.  Dizziness can have many causes, so it's important to get it checked out.  I cannot diagnose the reason for your dizziness.  Please see a doctor or other qualified healthcare professional as soon as possible to determine the cause and receive appropriate care.  In the meantime, try to rest and stay hydrated.\n",
     "created_at": "2025-04-30T13:32:56.502Z"
+  },
+  {
+    "id": "7f0fdebb-0d94-432a-8902-702c0e6e314b",
+    "user_id": "5532edd2-9689-4a72-8989-20f35c848ca3",
+    "message": "hi there",
+    "ai_response": "Hi there! How can I help you today?\n",
+    "created_at": "2025-05-03T18:45:35.226Z"
   }
 ]
